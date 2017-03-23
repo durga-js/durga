@@ -1,17 +1,6 @@
-# durga
+# Durga
 
-A project by platdesign.de
+The realtimeframework that scales.
 
+**To be continued ...**
 
-# Install
-
-`npm install --save durga`
-
-# Usage
-
-
-# Author
-
-[@platdesign](https://twitter.com/platdesign)
-
-# License
