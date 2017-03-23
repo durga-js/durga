@@ -137,22 +137,22 @@ describe('Collections:', function() {
 	});
 
 
-	it('could use topicCollectionInterface', () => {
+	it('should use topicCollectionInterface', () => {
 
 		let onTopicDispose;
-		let topicDisposed = new Promise(resolve => onTopicDispose = resolve)
+		let topicDisposed = new Promise(resolve => onTopicDispose = resolve);
 
 		$.server.topic('home', ({ collection, topic }) => {
 
 			collection('todos').query();
 			collection('todos').queryChanges();
 
-			topic.hook('dispose', () => onTopicDispose())
+			topic.hook('dispose', () => onTopicDispose());
 
 		});
 
 		let onQueryChangeDispose;
-		let queryChangesDispose = new Promise(resolve => onQueryChangeDispose = resolve)
+		let queryChangesDispose = new Promise(resolve => onQueryChangeDispose = resolve);
 
 		$.server.collectionProxy('testdb', {
 			query() {
@@ -174,7 +174,7 @@ describe('Collections:', function() {
 
 				return () => {
 					onQueryChangeDispose();
-				}
+				};
 			}
 		});
 

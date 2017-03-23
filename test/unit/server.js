@@ -7,9 +7,14 @@ const path = require('path');
 
 const Durga = require(path.resolve('lib'));
 const Protocol = require(path.resolve('lib', 'misc', 'protocol'));
+const Connection = require(path.resolve('lib', 'server', 'connection'));
 
 
-describe('Server', () => {
+describe('Server:', () => {
+
+	let server;
+	beforeEach(() => server = new Durga.Server({}));
+
 
 	it('should have protocol instance', () => {
 
@@ -183,6 +188,330 @@ describe('Server', () => {
 			});
 	});
 
+
+
+
+	describe('createConnection()', () => {
+
+		it('should be a function', () => {
+			expect(server.createConnection)
+				.to.be.a.function();
+		});
+
+		it('should return instance of Connection', () => {
+
+			let con = server.createConnection();
+
+			expect(con)
+				.to.be.an.instanceof(Connection);
+
+		});
+
+		describe('Connection:', () => {
+
+			let con;
+			beforeEach(() => con = server.createConnection());
+
+
+			describe('log()', () => {
+
+				it('should be a function', () => {
+
+					expect(con.log)
+						.to.be.a.function();
+
+				});
+
+				it('should log on server with tag: connection', (done) => {
+
+					server._logger = (tags, data) => {
+
+						expect(tags)
+							.to.equal(['connection', 'test']);
+
+						expect(data)
+							.to.equal(123);
+
+						done();
+					};
+
+					con.log(['test'], 123);
+
+				});
+
+				it('should return connection instance', () => {
+
+					let res = con.log(['test'], 123);
+
+					expect(res)
+						.to.shallow.equal(con);
+
+				});
+
+			});
+
+
+
+			describe('hook()', () => {
+
+				it('should be a function', () => {
+
+					expect(con.hook)
+						.to.be.a.function();
+
+				});
+
+
+				it('should register hook', () => {
+
+					con.hook('test', () => true);
+
+					expect(con.hooks._expectHooksByName('test'))
+						.to.have.length(1);
+
+				});
+
+				it('should return instance of connection', () => {
+
+					let res = con.hook('test', () => true);
+
+					expect(res)
+						.to.shallow.equal(con);
+
+				});
+
+			});
+
+
+
+
+
+
+			describe('listen()', () => {
+
+				it('should be a function', () => {
+
+					expect(con.listen)
+						.to.be.a.function();
+
+				});
+
+
+				it('should register listener and return connection instance', () => {
+
+					expect(con._send)
+						.not.to.be.a.function();
+
+					let res = con.listen(() => true);
+
+					expect(res)
+						.to.shallow.equal(con);
+
+					expect(con._send)
+						.to.be.a.function();
+
+				});
+
+			});
+
+
+
+
+
+			describe('sendRaw()', () => {
+
+				it('should be a function', () => {
+
+					expect(con.sendRaw)
+						.to.be.a.function();
+
+				});
+
+
+				it('should throw Error if no listener is attached', () => {
+
+					expect(() => con.sendRaw({}))
+						.to.throw(Error, 'Can\'t send without listener.');
+
+				});
+
+
+				it('should execute listener', () => {
+
+					con.listen(e => expect(e).to.equal({ test:123 }));
+
+					con.sendRaw({ test:123 });
+
+				});
+
+			});
+
+
+
+
+
+
+
+			describe('send()', () => {
+
+				it('should be a function', () => {
+
+					expect(con.send)
+						.to.be.a.function();
+
+				});
+
+				it('should throw ProtocolError on unknown composer', () => {
+
+					expect(() => con.send('test'))
+						.to.throw(Protocol.ProtocolError, `Composer 'test' not found.`);
+
+				});
+
+
+				it('should send composed message to listener', () => {
+
+					let isSent = false;
+
+					con.listen(e => {
+
+						expect(e)
+							.to.equal({ test:123 });
+
+						isSent = true;
+
+					});
+
+					con.server.protocol.registerComposer('test', () => ({ test:123 }));
+
+					con.send('test');
+
+					expect(isSent)
+						.to.be.true();
+
+				});
+
+			});
+
+
+
+
+
+			describe('dispatch()', () => {
+
+				it('should be a function', () => {
+
+					expect(con.dispatch)
+						.to.be.a.function();
+
+				});
+
+
+				it('should resolve with error:error and success:false on unknown handler', () => {
+
+					let res = con.dispatch({
+						type: 'test',
+						payload: { test:123 }
+					});
+
+					expect(res)
+						.to.be.instanceof(Promise);
+
+					return res.then(res => {
+						expect(res.success)
+							.to.be.false();
+
+						expect(res.error)
+							.to.be.an.error(Error, 'Handler not found');
+					});
+
+				});
+
+
+				it('should resolve with error:false and success:true', () => {
+
+					let matched = false;
+
+					con.server.protocol.registerMatcher(e => {
+
+						if(e.type === 'test') {
+							return () => {
+
+								expect(e.payload)
+									.to.equal({ test: 123 });
+
+								matched = true;
+
+							};
+						}
+					});
+
+					let res = con.dispatch({
+						type: 'test',
+						payload: { test:123 }
+					});
+
+					expect(res)
+						.to.be.instanceof(Promise);
+
+					return res.then(res => {
+
+						expect(res.error)
+							.to.be.false();
+
+						expect(res.success)
+							.to.be.true();
+
+						expect(matched)
+							.to.be.true();
+
+					});
+
+				});
+
+
+			});
+
+
+
+
+			describe('destroy()', () => {
+
+				it('should be a function', () => {
+
+					expect(con.destroy)
+						.to.be.a.function();
+
+				});
+
+				it('should return promise', () => {
+
+					let res = con.destroy();
+
+					expect(res)
+						.to.be.instanceof(Promise);
+
+				});
+
+				it('should run destroy hooks with con as param', () => {
+
+					con.hook('destroy', 0, (_con) => {
+						expect(_con)
+							.to.shallow.equal(con);
+					});
+
+					return con.destroy();
+
+				});
+
+			});
+
+
+
+		});
+
+
+	});
 
 
 

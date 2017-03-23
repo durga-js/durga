@@ -4,9 +4,7 @@
 describe('Unit:', () => {
 	require('./unit/misc');
 	require('./unit/plugins');
-	require('./unit/protocol');
 	require('./unit/server');
-	require('./unit/connection');
 	require('./unit/client');
 });
 

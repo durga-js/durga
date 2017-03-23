@@ -9,7 +9,31 @@ const Durga = require(path.resolve('lib'));
 const Protocol = require(path.resolve('lib', 'misc', 'protocol'));
 const ProtocolError = Protocol.ProtocolError;
 
-describe('Protocol', () => {
+describe('Protocol:', () => {
+
+
+	describe('ProtocolError:', () => {
+
+		it('should be defined', () => {
+			expect(ProtocolError)
+				.not.to.be.undefined();
+
+			let error = new ProtocolError('test');
+
+			expect(error)
+				.to.be.an.error(ProtocolError);
+		});
+
+		it('should have name getter', () => {
+
+			let error = new ProtocolError('test');
+
+			expect(error.name)
+				.to.equal('ProtocolError');
+		});
+
+	});
+
 
 	it('ProtocolError should be defined', () => {
 		expect(ProtocolError)

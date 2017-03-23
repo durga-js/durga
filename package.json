@@ -27,7 +27,11 @@
   "scripts": {
     "test": "NODE_ENV=test nyc mocha",
     "test:watch": "NODE_ENV=test mocha -w",
-    "coverage": "NODE_ENV=test npm run test && nyc report --reporter=html",
-    "release:patch": "npm run test && npm-release patch"
+    "test:unit": "npm run test -- -g \"Unit:\"",
+    "test:unit:watch": "npm run test:watch -- -g \"Unit:\"",
+    "coverage": "npm run test && nyc report --reporter=html",
+    "coverage:unit": "npm run test:unit && nyc report --reporter=html",
+    "release:patch": "npm run test && npm-release patch",
+    "coverage:browser": "open ./coverage/index.html -a \"Google Chrome\""
   }
 }

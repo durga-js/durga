@@ -10,39 +10,31 @@ const DecoratorError = Decorator.DecoratorError;
 
 
 
-describe('Decorator', function() {
+describe('Decorator:', function() {
 
-	it('should decorate method', () => {
 
-		let decorator = new Decorator({
-			ns: ['server']
-		});
-		let server = {};
 
-		decorator.register('server', 'method', function(a,b,c) {
+	describe('constructor()', () => {
 
-			expect(this)
-				.to.shallow.equal(server);
+		it('should use given ns array to extend a new array to avoid collisions during tests', () => {
+			let ns = ['a'];
+			let d = new Decorator({ ns });
 
-			return function() {
-				return this;
-			};
+			expect(d._ns)
+				.to.equal(['a'])
+				.not.to.shallow.equal(['a']);
 
 		});
 
-		decorator.decorate('server', server);
+		it('should create new array for ns if not given', () => {
 
-		expect(server.method).to.be.a.function();
-		expect(server.method()).to.shallow.equal(server);
+			let d = new Decorator({});
 
-		decorator.addNamespace('test');
+			expect(d._ns)
+				.to.equal([]);
 
+		});
 
-		expect(() => decorator._decorate('server', server, 'method', 123))
-			.to.throw(Error);
-
-		expect(() => decorator._decorate('unknownNamespace', server, 'method', 123))
-			.to.throw(Error);
 	});
 
 
@@ -53,48 +45,161 @@ describe('Decorator', function() {
 
 
 
-	it('decorate() with bindCtx', () => {
+	describe('addNamespace()', () => {
 
-		let decorator = new Decorator({});
-		decorator.addNamespace('server');
+		let d;
+		beforeEach(() => d = new Decorator({}));
 
-		let server = {};
-		let ctx = {};
-
-		decorator.register('server', 'method', function(_ctx) {
-
-			expect(_ctx)
-				.to.shallow.equal(ctx);
-
-			return () => this;
+		it('should be a function', () => {
+			expect(d.addNamespace)
+				.to.be.a.function();
 		});
 
-		decorator.decorate('server', server, [ctx]);
+		it('should add a new namespace', () => {
 
-		expect(server.method).to.be.a.function();
-		expect(server.method()).to.shallow.equal(server);
+			d.addNamespace('b');
+
+			expect(d._hasNamespace('b'))
+				.to.be.true();
+
+		});
+
+		it('should throw a DecoratorError if ns already exists', () => {
+
+			d.addNamespace('b');
+
+			expect(() => d.addNamespace('b'))
+				.to.throw(DecoratorError, 'Namespace \'b\' already exists');
+
+		});
 
 	});
 
-	it('addNamespace() should throw error on duplicate', () => {
-		let decorator = new Decorator({});
-		decorator.addNamespace('server');
 
-		expect(() => decorator.addNamespace('server'))
-			.to.throw(Error);
+
+
+
+
+
+
+
+
+	describe('register()', () => {
+
+		let d;
+		beforeEach(() => d = new Decorator({}));
+
+		it('should be a function', () => {
+			expect(d.register)
+				.to.be.a.function();
+		});
+
+		it('should throw DecoratorError if namespace not allowed', () => {
+
+			expect(() => d.register('test', 'a', () => true))
+				.to.throw(DecoratorError, 'Namespace \'test\' not allowed');
+
+		});
+
+		it('should register decorator on known namespace', () => {
+
+			d.addNamespace('test');
+
+			d.register('test', 'a', () => true);
+
+		});
+
 	});
 
 
-	describe('DecoratorError', () => {
 
+
+
+
+
+	describe('run()', () => {
+
+		let d;
+		beforeEach(() => d = new Decorator({}));
+
+		it('should be a function', () => {
+			expect(d.run)
+				.to.be.a.function();
+		});
+
+		it('should throw DecoratorError if target.key already set', () => {
+
+			d.addNamespace('test');
+			d.register('test', 'a', () => true);
+
+			let test = { a:123 };
+
+			expect(() => d.run('test', test))
+				.to.throw(DecoratorError, `'test' cant be decorated. Property 'a' already exists.`);
+
+		});
+
+		it('should throw DecoratorError ns not allowed', () => {
+
+			expect(() => d.run('test', {}))
+				.to.throw(DecoratorError, 'Namespace \'test\' not allowed');
+
+		});
+
+	});
+
+
+
+
+
+	describe('decorateTarget()', () => {
+
+		let d;
+		beforeEach(() => d = new Decorator({}));
+
+		it('should be a function', () => {
+			expect(d.decorateTarget)
+				.to.be.a.function();
+		});
+
+		it('should decorate given target', () => {
+
+			let target = {};
+
+			d.decorateTarget(target, 'a', () => 123);
+
+			expect(target.a)
+				.to.equal(123);
+
+		});
+
+		it('should throw DecoratorError if target has own property on given key', () => {
+
+			let target = { a:123 };
+
+			expect(() => d.decorateTarget(target, 'a', () => 123))
+				.to.throw(DecoratorError, `Can't decorate target. Property 'a' already exists.`);
+
+		});
+
+	});
+
+
+
+
+
+
+	describe('DecoratorError:', () => {
 
 		it('should have name attribute', () => {
 			let err = new DecoratorError();
 
 			expect(err.name)
 				.to.equal('DecoratorError');
-		})
+		});
 
-	})
+	});
+
+
 
 });
