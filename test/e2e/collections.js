@@ -139,15 +139,11 @@ describe('Collections:', function() {
 
 	it('should use topicCollectionInterface', () => {
 
-		let onTopicDispose;
-		let topicDisposed = new Promise(resolve => onTopicDispose = resolve);
 
-		$.server.topic('home', ({ collection, topic }) => {
+		$.server.topic('home', ({ collection }) => {
 
 			collection('todos').query();
 			collection('todos').queryChanges();
-
-			topic.hook('dispose', () => onTopicDispose());
 
 		});
 
@@ -198,27 +194,20 @@ describe('Collections:', function() {
 			});
 
 
-		let subscription = new Promise(resolve => {
 
-			let sub = $.client.subscribe('home', {}, null, (err, res) => {
-
-				expect(err)
-					.to.be.null();
-
-				expect(res)
-					.to.be.an.object();
+		let sub = $.client.subscribe('home', {});
 
 
-				expect(res.todos)
-					.to.be.an.array()
-					.to.equal([1,2,3]);
+		let subscription = sub.ready.then(res => {
+			expect(res)
+				.to.be.an.object();
 
-				sub.dispose()
-					.then(res => {
-						resolve();
-					});
-			});
 
+			expect(res.todos)
+				.to.be.an.array()
+				.to.equal([1,2,3]);
+
+			return sub.dispose();
 
 		});
 
@@ -226,8 +215,7 @@ describe('Collections:', function() {
 		return Promise.all([
 			collEvents,
 			subscription,
-			queryChangesDispose,
-			topicDisposed
+			queryChangesDispose
 		]);
 
 
