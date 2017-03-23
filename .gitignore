@@ -1,4 +1,10 @@
 node_modules/
+jspm_packages/
+
 temp/
-vendor/
 .nyc_output/
+.npm
+
+*.log
+npm-debug.log*
+coverage
