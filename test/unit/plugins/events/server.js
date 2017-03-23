@@ -19,6 +19,9 @@ describe('Server:', () => {
 
 
 
+
+
+
 	describe('EventsProviderError:', () => {
 
 		it('should have name getter', () => {
