@@ -27,6 +27,7 @@
   "scripts": {
     "test": "NODE_ENV=test nyc mocha",
     "test:watch": "NODE_ENV=test mocha -w",
-    "coverage": "NODE_ENV=test npm run test && nyc report --reporter=html"
+    "coverage": "NODE_ENV=test npm run test && nyc report --reporter=html",
+    "release:patch": "npm run test && npm-release patch"
   }
 }
