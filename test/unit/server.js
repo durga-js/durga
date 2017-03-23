@@ -515,4 +515,54 @@ describe('Server:', () => {
 
 
 
+	describe('inject()', () => {
+
+		it('should be a function', () => {
+			expect(server.inject)
+				.to.be.a.function();
+		});
+
+		it('should simulate a run of injected config', () => {
+
+			return server.inject({
+				event: {}
+			})
+			.then(({ result, listen, connection }) => {
+
+				expect(result)
+					.to.be.an.object();
+
+				expect(result.success)
+					.to.be.false();
+
+				expect(result.error)
+					.to.be.an.error(Error, 'Handler not found');
+
+				expect(listen)
+					.to.be.a.function();
+
+				expect(connection)
+					.to.be.an.instanceof(Connection);
+
+				let listenerCalled = false;
+
+				listen(e => {
+					expect(e)
+						.to.equal({ test:123 });
+
+					listenerCalled = true;
+				});
+
+				connection.sendRaw({ test:123 });
+
+				expect(listenerCalled)
+					.to.be.true();
+
+			});
+
+		});
+
+	});
+
+
 });
