@@ -283,6 +283,34 @@ describe('Client:', () => {
         });
 
 
+				it('should subscribe to observable', () => {
+
+
+
+					client.collection('test').subscribe(e => {
+
+            expect(e)
+              .to.equal({
+                type: 'added',
+                id: 1,
+                model: { id:1, title: 'test' }
+              });
+
+					});
+
+          client.dispatch({
+						type: 'collection',
+						collection: 'test',
+						event: 'added',
+						id: 1,
+						model: {
+							id: 1,
+							title: 'test'
+						}
+					});
+
+				});
+
       });
 
     });
