@@ -78,7 +78,7 @@ describe('Server:', () => {
 							topic: 'test',
 							rid: 1,
 							error: undefined,
-							payload: {}
+							payload: { dispatches:[] }
 						});
 
 					isReady = true;
