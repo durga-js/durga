@@ -142,7 +142,6 @@ describe('Server:', () => {
 
 	describe('subscribing', () => {
 
-
 		it('should return error on unknown topic', () => {
 
 			return server.inject({
@@ -180,7 +179,6 @@ describe('Server:', () => {
 
 		});
 
-
 		it('should return error on preHandler err', () => {
 
 
@@ -212,6 +210,46 @@ describe('Server:', () => {
 
 				expect(result.error)
 					.to.be.an.error(Error, 'Prehandler error');
+
+			});
+
+		});
+
+		it('should return observed promise as dispatches ready payload', () => {
+
+			server.topic('test', ({ observe }) => {
+
+        let p = Promise.resolve({ test:123 })
+          .then(res => (ctx) => ctx.push(res));
+
+				observe(p);
+
+			});
+
+			return server.inject({
+				event: {
+					type: 'topic:sub',
+					topic: 'test',
+					rid: 1,
+					payload: {}
+				}
+			}, e => {
+
+				expect(e.payload)
+					.to.equal({
+						dispatches: [
+							{ test:123 }
+						]
+					});
+
+			})
+			.then(({ result }) => {
+
+				expect(result)
+					.to.equal({
+						success: true,
+						error: false
+					});
 
 			});
 
