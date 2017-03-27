@@ -215,45 +215,95 @@ describe('Server:', () => {
 
 		});
 
-		it('should return observed promise as dispatches ready payload', () => {
+		describe('topic.ctx.observe()', () => {
+			it('should return observed promise as dispatches ready payload', () => {
 
-			server.topic('test', ({ observe }) => {
+				server.topic('test', ({ observe }) => {
 
-        let p = Promise.resolve({ test:123 })
-          .then(res => (ctx) => ctx.push(res));
+	        let p = Promise.resolve({ test:123 })
+	          .then(res => (ctx) => ctx.push(res));
 
-				observe(p);
+					observe(p);
+
+				});
+
+				return server.inject({
+					event: {
+						type: 'topic:sub',
+						topic: 'test',
+						rid: 1,
+						payload: {}
+					}
+				}, e => {
+
+					expect(e.payload)
+						.to.equal({
+							dispatches: [
+								{ test:123 }
+							]
+						});
+
+				})
+				.then(({ result }) => {
+
+					expect(result)
+						.to.equal({
+							success: true,
+							error: false
+						});
+
+				});
 
 			});
 
-			return server.inject({
-				event: {
-					type: 'topic:sub',
-					topic: 'test',
-					rid: 1,
-					payload: {}
-				}
-			}, e => {
+			it('should subscribe to observable', () => {
 
-				expect(e.payload)
-					.to.equal({
-						dispatches: [
-							{ test:123 }
-						]
-					});
+				let hasSubscribed = false;
 
-			})
-			.then(({ result }) => {
+				server.topic('test', ({ observe }) => {
 
-				expect(result)
-					.to.equal({
-						success: true,
-						error: false
-					});
+					let o = rx.Observable.fromArray([1,2,3])
+						.take(1)
+	          .map(() => () => {
+							hasSubscribed = true;
+						});
+
+					observe(o);
+
+				});
+
+				return server.inject({
+					event: {
+						type: 'topic:sub',
+						topic: 'test',
+						rid: 1,
+						payload: {}
+					}
+				}, e => {
+
+					expect(e.payload)
+						.to.equal({
+							dispatches: []
+						});
+
+				})
+				.then(({ result }) => {
+
+					expect(result)
+						.to.equal({
+							success: true,
+							error: false
+						});
+
+					expect(hasSubscribed)
+						.to.be.true();
+				})
+
 
 			});
 
 		});
+
 
 	});
 
