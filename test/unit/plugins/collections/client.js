@@ -250,7 +250,7 @@ describe('Client:', () => {
               .to.equal('$collection:test:huhu');
 
             expect(payload)
-              .to.equal(123)
+              .to.equal(123);
 
             return Promise.resolve({ test:1234 });
           };

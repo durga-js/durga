@@ -104,6 +104,54 @@ describe('Client:', () => {
 
 				});
 
+
+
+				it('should dispatch if dispatches are available in ready response', () => {
+
+					client.listen(e => {
+
+            setTimeout(() => {
+              client.dispatch({
+                type: 'topic:ready',
+                rid: e.rid,
+                topic: e.topic,
+                payload: {
+                  dispatches: [
+                    {
+                      type: 'event',
+                      event: 'test',
+                      payload: { test:123 }
+                    }
+                  ]
+                }
+              });
+            });
+
+					});
+
+          let eventExecuted = false;
+
+          client.event('test', ({ payload }) => {
+            expect(payload)
+              .to.equal({ test:123 });
+
+
+            eventExecuted = true;
+          });
+
+					return client.subscribe('test', {})
+            .ready
+						.then(res => {
+              expect(res)
+                .to.equal({});
+
+              expect(eventExecuted)
+                .to.be.true();
+            });
+
+				});
+
+
 			});
 
 
