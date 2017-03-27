@@ -150,6 +150,27 @@ describe('Server:', () => {
     });
 
 
+    it('should return room instance when used as getter', () => {
+
+      let proxy = server.roomProxy('test', new server.LocalRoomProxy());
+      let room = server.room('test', 'test');
+
+
+      expect(server.room('test'))
+        .to.shallow.equal(room);
+    });
+
+    it('should define room with proxy-string', () => {
+      server.roomProxy('test', new server.LocalRoomProxy());
+      server.room('test', 'test');
+    });
+
+    it('should define room with proxy-instance', () => {
+      let proxy = server.roomProxy('test', new server.LocalRoomProxy());
+      server.room('test', proxy);
+    });
+
+
     it('should define room and connect proxy', () => {
 
       let connected = false;
@@ -176,77 +197,218 @@ describe('Server:', () => {
     });
 
 
-    // describe('room', () => {
-    //
-    //   describe('emit()', () => {
-    //
-    //     it('should be a function', () => {
-    //
-    //       server.roomProxy('test', new server.LocalRoomProxy());
-    //       let room = server.room('test', 'test');
-    //
-    //       expect(room.emit)
-    //         .to.be.a.function();
-    //
-    //     });
-    //
-    //     it('should throw error if proxy does not implement method emit()', () => {
-    //
-    //       server.roomProxy('test', { connect() {} });
-    //       let room = server.room('test', 'test');
-    //
-    //       expect(() => room.emit('test', {}))
-    //         .to.throw(Error, `RoomProxy 'test' has no implementation for method: emit()`);
-    //
-    //     });
-    //
-    //     it('should execute proxy.emit()', () => {
-    //
-    //       let executed = false;
-    //
-    //       server.roomProxy('test', {
-    //         connect() {},
-    //         emit(room, event, payload) {
-    //           expect(event)
-    //             .to.be.a.string()
-    //             .to.equal('test');
-    //
-    //           expect(payload)
-    //             .to.be.an.object()
-    //             .to.equal({ test:123 });
-    //
-    //           executed = true;
-    //         }
-    //       });
-    //
-    //       let room = server.room('test', 'test');
-    //
-    //       room.emit('test', { test:123 });
-    //
-    //       expect(executed)
-    //         .to.be.true();
-    //
-    //     });
-    //
-    //   });
-    //
-    //   describe('join()', () => {
-    //
-    //   });
-    //
-    //   describe('leave()', () => {
-    //
-    //   });
-    //
-    // });
+    describe('room', () => {
+
+      describe('emit()', () => {
+
+        it('should be a function', () => {
+
+          server.roomProxy('test', new server.LocalRoomProxy());
+          let room = server.room('test', 'test');
+
+          expect(room.emit)
+            .to.be.a.function();
+
+        });
 
 
+        it('should execute proxy.emit()', () => {
 
-    // it('should define room with proxy as string', () => {
-    //
-    //   let room = server.room('test', 'testProxy', {});
-    //
-    // });
+          let executed = false;
+
+          server.roomProxy('test', {
+            connect() {},
+            emit(room, event, payload) {
+              expect(event)
+                .to.be.a.string()
+                .to.equal('test');
+
+              expect(payload)
+                .to.be.an.object()
+                .to.equal({ test:123 });
+
+              executed = true;
+            }
+          });
+
+          let room = server.room('test', 'test');
+
+          room.emit('test', { test:123 });
+
+          expect(executed)
+            .to.be.true();
+
+        });
+
+      });
+
+      describe('join()', () => {
+
+        it('should be a function', () => {
+          server.roomProxy('test', new server.LocalRoomProxy());
+          let room = server.room('test', 'test');
+
+          expect(room.join)
+            .to.be.a.function();
+        });
+
+        it('should throw error if connection already joined', () => {
+
+          server.roomProxy('test', new server.LocalRoomProxy());
+          let room = server.room('test', 'test');
+
+          let con = server.createConnection();
+
+          room.join(con);
+
+          expect(() => room.join(con))
+            .to.throw(Error, `Connection '${con.id}' already joined room 'test'`);
+
+        });
+
+        it('should add connection as listener', () => {
+
+          server.roomProxy('test', new server.LocalRoomProxy());
+          let room = server.room('test', 'test');
+
+          let con = server.createConnection();
+
+          room.join(con);
+
+          expect(room.connections)
+            .to.include(con.id);
+
+        });
+
+      });
+
+      describe('leave()', () => {
+
+        it('should be a function', () => {
+          server.roomProxy('test', new server.LocalRoomProxy());
+          let room = server.room('test', 'test');
+
+          expect(room.leave)
+            .to.be.a.function();
+        });
+
+
+        it('should remove connection as listener', () => {
+
+          server.roomProxy('test', new server.LocalRoomProxy());
+          let room = server.room('test', 'test');
+
+          let con = server.createConnection();
+
+          room.join(con);
+
+          expect(room.connections)
+            .to.include(con.id);
+
+          room.leave(con);
+
+          expect(room.connections)
+            .not.to.include(con.id);
+
+        });
+
+        it('should automatically leave room on connection destroy', () => {
+
+          server.roomProxy('test', new server.LocalRoomProxy());
+          let room = server.room('test', 'test');
+
+          let con = server.createConnection();
+
+          room.join(con);
+
+          expect(room.connections)
+            .to.include(con.id);
+
+          return con.destroy()
+            .then(() => {
+
+              expect(room.connections)
+                .not.to.include(con.id);
+
+            });
+
+        });
+
+        it('should do nothing if connection already left room', () => {
+          server.roomProxy('test', new server.LocalRoomProxy());
+          let room = server.room('test', 'test');
+
+          let con = server.createConnection();
+
+          room.join(con);
+
+          room.leave(con);
+
+          room.leave(con);
+        });
+
+      });
+
+      describe('_emitLocal()', () => {
+
+        it('should be a function', () => {
+          server.roomProxy('test', new server.LocalRoomProxy());
+          let room = server.room('test', 'test');
+
+          expect(room._emitLocal)
+            .to.be.a.function();
+        });
+
+        it('should send event to all connected clients', () => {
+
+          server.roomProxy('test', new server.LocalRoomProxy());
+          let room = server.room('test', 'test');
+
+          let con1 = server.createConnection();
+          let con2 = server.createConnection();
+
+          let con1Received = false;
+          let con2Received = false;
+
+          con1.listen(e => {
+
+            expect(e).to.equal({
+              type: 'event',
+              event: 'test',
+              payload: { test:123 }
+            });
+
+            con1Received = true;
+          });
+
+          con2.listen(e => {
+
+            expect(e).to.equal({
+              type: 'event',
+              event: 'test',
+              payload: { test:123 }
+            });
+
+            con2Received = true;
+          });
+
+          room.join(con1);
+          room.join(con2);
+
+          room._emitLocal('test', { test:123 });
+
+          expect(con1Received)
+            .to.be.true();
+
+          expect(con2Received)
+            .to.be.true();
+
+        });
+
+      });
+
+    });
+
 
   });
 
