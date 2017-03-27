@@ -413,4 +413,41 @@ describe('Server:', () => {
   });
 
 
+
+	describe('LocalProxy', () => {
+
+		it('should work', () => {
+
+
+			server.roomProxy('local', new server.LocalRoomProxy());
+
+			let room = server.room('test', 'local');
+
+			let con = server.createConnection();
+
+			let sentEvent = false;
+
+			con.listen(e => {
+				expect(e)
+					.to.equal({
+						type: 'event',
+						event: 'test',
+						payload: { test:123 }
+					});
+
+				sentEvent = true;
+			});
+
+			room.join(con);
+
+			room.emit('test', { test:123 });
+
+			expect(sentEvent)
+				.to.be.true();
+
+		});
+
+	});
+
+
 });
