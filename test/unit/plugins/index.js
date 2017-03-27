@@ -5,5 +5,7 @@ describe('Plugin:', () => {
 	require('./events');
 	require('./methods');
 	require('./collections');
-	require('./topics');
+  require('./topics');
+  require('./rooms');
+
 });
