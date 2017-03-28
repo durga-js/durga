@@ -81,7 +81,7 @@ describe('Client:', () => {
 
 					client.listen(() => true);
 
-					let sub = client.subscribe('test', {}, { timeout: 0 });
+					let sub = client.subscribe('test', {}, { timeout: 50 });
 
 					expect(sub)
 						.to.be.an.object();
@@ -98,7 +98,7 @@ describe('Client:', () => {
 							.to.be.false();
 
 						expect(err)
-							.to.be.an.error(client.errors.TopicTimeoutError, 'Timeout has occurred for topic:sub: test');
+							.to.be.an.error(client.errors.TopicTimeoutError, `Timeout has occurred while waiting for topic:ready: test`);
 
 					});
 

@@ -153,13 +153,19 @@ describe('Server:', () => {
 				}
 			}, e => {
 
+				console.log(e);
+
 				expect(e)
 					.to.equal({
 						type: 'topic:ready',
 						topic: 'test',
 						rid: 1,
 						payload: undefined,
-						error: { msg: 'Internal server error', code: undefined }
+						error: {
+							statusCode: 500,
+		     			error: 'Internal Server Error',
+		     			message: 'An internal server error occurred'
+						}
 					});
 
 			})
@@ -199,7 +205,11 @@ describe('Server:', () => {
 						topic: 'test',
 						rid: 1,
 						payload: undefined,
-						error: { msg: 'Internal server error', code: undefined }
+						error: {
+							statusCode: 500,
+		     			error: 'Internal Server Error',
+		     			message: 'An internal server error occurred'
+						}
 					});
 
 			})
