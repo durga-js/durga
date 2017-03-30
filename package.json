@@ -33,6 +33,7 @@
     "coverage": "npm run test && nyc report --reporter=html",
     "coverage:unit": "npm run test:unit && nyc report --reporter=html",
     "release:patch": "npm run test && npm-release patch",
-    "coverage:browser": "open ./coverage/index.html -a \"Google Chrome\""
+    "coverage:browser": "open ./coverage/index.html -a \"Google Chrome\"",
+    "travis-ci": "npm run test"
   }
 }
