@@ -6,4 +6,4 @@ node_js:
   - "7"
 
 script:
-  - npm run setup && npm run travis-ci
+  - npm run travis-ci
