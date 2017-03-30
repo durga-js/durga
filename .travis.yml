@@ -1,9 +1,12 @@
 language: node_js
 sudo: true
-
 node_js:
-  - "6"
-  - "7"
-
+- '6'
+- '7'
 script:
-  - npm run travis-ci
+- npm run travis-ci
+notifications:
+  email: false
+  slack:
+    rooms:
+      secure: pjOoAZzmwdt7EipywydFwrL1AqQ9Acj0wn8TeCuN4PjhM4xpMuLZpJ6sw1Bfe7kcu5qivMvnLIevzbQekT2qTgKngLnvecT3nMGOrOubfTsI6gbDKohnOwjR2E0IXP7md6keSZitdo4I9okFWR80zCP34ZRVuUXXG6S9jF20O7myuyRHXpbzpOqKt3vDaOsdTS2WRJSfTIH1R6seaqG2J9S62r/yB7RzF8Uu2uwCUPZdR1VLCu7EvJTEJmcGE3bRL9dnHzJimLxXgB96XJl3oIzTJOyC+xCAZ/q5kR7kPzjp4rMdkO4rDYQdd+jBlvfHKI2bYrrM2ZyDPEWyILxw/LBWOuhRhx1AvOL/YJkPowcaQ3QQbsMyiurQaBF7/7qK8/IzmWn/yyyIomwHrrlHcpzc68r4Y7EXMyfvDjFqBWEnL8TqXpuD0ykWjS7CYQFmH5P0iUDer2dp2oq8Ua6SfHeBKpS1YHEg2wlp3Nyxko0+xRaM2b0penZ35DxtMYCE6bwDg+EWpI2e/pe4cxNz00p9wqJJHPnr4A/QlmjX+NTW6FHpxtzNTe9BqRTV4AO5FgFynL1KYlp1LoOejx+QjSYYrqi22Dv/Bq1fJBc2q3GFaWO64GVODvB3XizekehCOXxciBzeu0eIrV8B1jkLSOq1RvWw6+U1CxSKQ/w5Tkg=
