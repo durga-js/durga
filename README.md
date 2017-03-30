@@ -2,5 +2,6 @@
 
 The realtimeframework that scales.
 
-**To be continued ...**
+[![Build Status](https://travis-ci.org/durga-js/durga.svg?branch=master)](https://travis-ci.org/durga-js/durga)
 
+**To be continued ...**
