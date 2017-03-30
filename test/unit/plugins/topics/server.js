@@ -153,8 +153,6 @@ describe('Server:', () => {
 				}
 			}, e => {
 
-				console.log(e);
-
 				expect(e)
 					.to.equal({
 						type: 'topic:ready',
