@@ -128,6 +128,46 @@ describe('Server:', () => {
         });
 
       });
+
+			describe('lifecycle', () => {
+
+				it('start() error should deny server.start()', () => {
+
+					let proxy = server.roomProxy('test', {
+						connect() {},
+						emit() {},
+						start() {
+							return Promise.reject(new Error('ProxyStartError'));
+						}
+					});
+
+					return server.start()
+					.then(
+						res => { throw new Error('Should not resolve'); },
+						err => {
+							expect(err)
+								.to.be.an.error('ProxyStartError')
+						}
+					);
+
+				});
+
+				it('stop() error should NOT deny server.stop()', () => {
+
+					let proxy = server.roomProxy('test', {
+						connect() {},
+						emit() {},
+						stop() {
+							return Promise.reject(new Error('ProxyStopError'));
+						}
+					});
+
+					return server.stop();
+
+				});
+
+			});
+
     });
 
 
