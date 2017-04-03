@@ -81,15 +81,16 @@ describe('Server:', () => {
 
         it('should execute given connect() and emit() implementation', () => {
 
-          let roomDummy = { name: 'dummy' };
+          let roomDummy;
 
           let isConnected = false;
           let hasEmitted = false;
 
           let proxy = server.roomProxy('test', {
             connect(room) {
+
               expect(room)
-                .to.shallow.equal(roomDummy);
+								.to.be.an.object();
 
               isConnected = true;
             },
@@ -110,6 +111,8 @@ describe('Server:', () => {
 
             }
           });
+
+					roomDummy = server.room('test', 'test');
 
 
           proxy.connect(roomDummy);
