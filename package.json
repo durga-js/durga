@@ -35,7 +35,7 @@
     "test:unit:watch": "npm run test:watch -- -g \"Unit:\"",
     "coverage": "npm run test && nyc report --reporter=html",
     "coverage:unit": "npm run test:unit && nyc report --reporter=html",
-    "release:patch": "npm run test && npm run build && git commit -a && npm-release patch",
+    "release:patch": "npm run test && npm run build && git commit -a -m \"build\" && npm-release patch",
     "coverage:browser": "open ./coverage/index.html -a \"Google Chrome\"",
     "travis-ci": "npm run test",
     "build": "webpack"
