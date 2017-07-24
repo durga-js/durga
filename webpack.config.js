@@ -10,7 +10,9 @@ module.exports = {
 
 	output: {
 		path: path.resolve('./'),
-		filename: '[name].js'
+		filename: '[name].js',
+		library: 'Durga',
+		libraryTarget: 'umd'
 	},
 	module: {
 		rules: [
