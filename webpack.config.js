@@ -5,7 +5,7 @@ const path = require('path');
 
 module.exports = {
 	entry: {
-		'client/index.js': './lib/client/index.js'
+		'client/index': './lib/client/index.js'
 	},
 
 	output: {
